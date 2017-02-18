@@ -20,6 +20,11 @@
         <activity
             android:name=".AndroidDatabaseManager"
             android:theme="@style/Theme.AppCompat.Light" />
+
+        <service
+            android:name=".StepCountingService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

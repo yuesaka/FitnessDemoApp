@@ -10,5 +10,6 @@
     <string name="edit_text_incorrect_password">Incorrect password!</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="logout">Log Out</string>
+    <string name="step_counting_notification_text">Tracking...</string>
 
 </resources>
