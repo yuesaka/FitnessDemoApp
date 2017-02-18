@@ -10,16 +10,18 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+
 public class DailyStatsActivity extends ActionBarActivity {
 
     private TextView stepsTakenText;
     private TextView usernameText;
+    private TextView distanceText;
 
     private SessionManager sessionManager;
     private DatabaseHelper dbHelper;
@@ -59,6 +61,7 @@ public class DailyStatsActivity extends ActionBarActivity {
         dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         stepsTakenText = (TextView) findViewById(R.id.daily_stats_steps_taken);
         usernameText = (TextView) findViewById(R.id.daily_stats_greetings);
+        distanceText = (TextView) findViewById(R.id.daily_stats_disntace_walked);
         stepsTakenText.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent dbmanager = new Intent(DailyStatsActivity.this, AndroidDatabaseManager
@@ -67,18 +70,28 @@ public class DailyStatsActivity extends ActionBarActivity {
             }
         });
         sessionManager = new SessionManager(getApplicationContext());
-        stepsTakenText.setText(Integer.toString(dbHelper.getStepsToday(dbHelper.getUserId(sessionManager
-                .getSessionUsername()))) + " Steps");
-        usernameText.setText(sessionManager.getSessionUsername());
+        updateStepAndDistanceText();
+        usernameText.setText("Hello, " + sessionManager.getSessionUsername());
 
         // Listen for the change in steps from StepCountingService
         newStepReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                stepsTakenText.setText(Integer.toString(dbHelper.getStepsToday(dbHelper.getUserId(sessionManager
-                        .getSessionUsername()))) + " Steps");
+                updateStepAndDistanceText();
             }
         };
+    }
+
+    private void updateStepAndDistanceText() {
+        int userId = dbHelper.getUserId(sessionManager
+                .getSessionUsername());
+        int stepsWalkedToday = dbHelper.getStepsToday(userId);
+        stepsTakenText.setText(Integer.toString(stepsWalkedToday) + " Steps");
+        double distance = Utility.stepsToFoot(stepsWalkedToday, dbHelper
+                .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
+                .string.male_string)));
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        distanceText.setText(decimalFormat.format(distance) + " Meters");
     }
 
     @Override

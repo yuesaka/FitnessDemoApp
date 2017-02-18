@@ -157,7 +157,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return numStepsToday;
     }
 
-    public Cursor getUserInfo(int id) {
+    public int getUserHeight(long id) {
+        int userHeight = 0;
+        Cursor cursor = getUserInfo((int) id);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    userHeight =
+                            cursor.getInt(cursor.getColumnIndex(KEY_USER_INFO_HEIGHT_CM));
+                } while (cursor.moveToNext());
+            }
+        }
+        return userHeight;
+    }
+
+    public String getUserSex(long id) {
+        String userSex = null;
+        Cursor cursor = getUserInfo((int) id);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    userSex =
+                            cursor.getString(cursor.getColumnIndex(KEY_USER_INFO_SEX));
+                } while (cursor.moveToNext());
+            }
+        }
+        return userSex;
+    }
+
+    private Cursor getUserInfo(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME + " where " + KEY_STEP_LOG_ID + "=" +
                 id + "", null);
