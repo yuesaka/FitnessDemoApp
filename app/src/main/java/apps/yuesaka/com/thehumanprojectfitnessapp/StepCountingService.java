@@ -13,7 +13,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 public class StepCountingService extends Service implements SensorEventListener {
     private static final String TAG = StepCountingService.class.getSimpleName();
@@ -41,6 +40,9 @@ public class StepCountingService extends Service implements SensorEventListener 
     static final public String STEP_COUNT_UPDATE
             = "apps.yuesaka.com.thehumanprojectfitnessapp.STEP_COUNT_UPDATE";
 
+    WalkReminderReceiver walkReminderAlarmReceiver;
+    StepLogUpdateReceiver stepLogUpdateAlarmReceiver;
+
     public void broadcastStepCount() {
         Intent intent = new Intent(STEP_COUNT_UPDATE);
         newStepBroadcaster.sendBroadcast(intent);
@@ -50,11 +52,17 @@ public class StepCountingService extends Service implements SensorEventListener 
     public void onCreate() {
         dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         sessionManager = new SessionManager(getApplicationContext());
+        walkReminderAlarmReceiver = new WalkReminderReceiver();
+        walkReminderAlarmReceiver.setAlarm(this);
+        stepLogUpdateAlarmReceiver = new StepLogUpdateReceiver();
+        stepLogUpdateAlarmReceiver.setAlarm(this);
     }
 
     @Override
     public void onDestroy() {
         sensorManager.unregisterListener(this, stepSensor);
+        walkReminderAlarmReceiver.cancelAlarm(this);
+        stepLogUpdateAlarmReceiver.cancelAlarm(this);
     }
 
     @Override

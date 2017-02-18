@@ -87,7 +87,7 @@ public class DailyStatsActivity extends ActionBarActivity {
                 .getSessionUsername());
         int stepsWalkedToday = dbHelper.getStepsToday(userId);
         stepsTakenText.setText(Integer.toString(stepsWalkedToday) + " Steps");
-        double distance = Utility.stepsToFoot(stepsWalkedToday, dbHelper
+        double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
                 .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
                 .string.male_string)));
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
@@ -105,6 +105,8 @@ public class DailyStatsActivity extends ActionBarActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.menu_logout:
+                Intent intent = new Intent(this, StepCountingService.class);
+                stopService(intent);
                 sessionManager.logoutUser();
                 break;
         }

@@ -22,7 +22,7 @@ public final class Utility {
         return isRequiredFieldFilled;
     }
 
-    public static double stepsToFoot(int numSteps, int height_cm, boolean isMale) {
+    public static double stepsToMeter(int numSteps, int height_cm, boolean isMale) {
         double stepLengthFactor = isMale ?  MALE_STEP_LENGTH_FACTOR : FEMALE_STEP_LENGTH_FACTOR;
         return (double)(numSteps * height_cm * stepLengthFactor) / (double) 100;
     }
