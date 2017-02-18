@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TheHumanProjectFitnessApp</string>
+
+    <string name="edit_text_field_required">Required Field</string>
+    <string name="edit_text_username_taken">Username already taken!</string>
+
+    <string name="male_string">Male</string>
+    <string name="female_string">Female</string>
+    <string name="edit_text_no_such_username">username does not exist</string>
+    <string name="edit_text_incorrect_password">Incorrect password!</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="logout">Log Out</string>
+
+</resources>
