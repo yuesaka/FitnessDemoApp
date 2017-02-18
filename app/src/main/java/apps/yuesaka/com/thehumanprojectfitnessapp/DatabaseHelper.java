@@ -91,6 +91,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(USER_INFO_TABLE_NAME, null, contentValues);
     }
 
+    public int getUserId(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME + " where " +
+                KEY_USER_INFO_USERNAME + "= '" + username + "'", null);
+        String userId = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    userId = cursor.getString(cursor.getColumnIndex(KEY_USER_INFO_ID));
+                } while (cursor.moveToNext());
+            }
+        }
+        return Integer.valueOf(userId);
+    }
+
     public boolean usernameExists(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME + " where " +
@@ -112,6 +127,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return enterdPassword.equals(dbPassword);
     }
+
+    public void updateStepsToday(long id, int stepIncrement) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // New value for one column
+        ContentValues values = new ContentValues();
+        int newStepValue = getStepsToday(id) + stepIncrement;
+        values.put(KEY_USER_INFO_STEPS_TODAY, newStepValue);
+        String selection = KEY_USER_INFO_ID + " LIKE ?";
+        String[] selectionArgs = {Long.toString(id)};
+        int count = db.update(
+                USER_INFO_TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+
+    public int getStepsToday(long id) {
+        int numStepsToday = 0;
+        Cursor cursor = getUserInfo((int) id);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    numStepsToday =
+                            cursor.getInt(cursor.getColumnIndex(KEY_USER_INFO_STEPS_TODAY));
+                } while (cursor.moveToNext());
+            }
+        }
+        return numStepsToday;
+    }
+
+    public Cursor getUserInfo(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME + " where " + KEY_STEP_LOG_ID + "=" +
+                id + "", null);
+        return res;
+    }
+
 
     /**
      * DEBUGGING PURPOSES

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,10 +22,14 @@ public class DailyStatsActivity extends ActionBarActivity {
     private TextView usernameText;
 
     private SessionManager sessionManager;
+    private DatabaseHelper dbHelper;
 
     // Service related objects
     StepCountingService stepCountingService;
     boolean serviceBound = false;
+
+    // Receive update from StepCountingService about new steps
+    BroadcastReceiver newStepReceiver;
 
     @Override
     protected void onStart() {
@@ -32,6 +37,9 @@ public class DailyStatsActivity extends ActionBarActivity {
         Intent intent = new Intent(this, StepCountingService.class);
         startService(intent);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        LocalBroadcastManager.getInstance(this).registerReceiver((newStepReceiver),
+                new IntentFilter(StepCountingService.STEP_COUNT_UPDATE)
+        );
     }
 
     @Override
@@ -41,12 +49,14 @@ public class DailyStatsActivity extends ActionBarActivity {
             unbindService(serviceConnection);
             serviceBound = false;
         }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(newStepReceiver);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_stats);
+        dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         stepsTakenText = (TextView) findViewById(R.id.daily_stats_steps_taken);
         usernameText = (TextView) findViewById(R.id.daily_stats_greetings);
         stepsTakenText.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +67,18 @@ public class DailyStatsActivity extends ActionBarActivity {
             }
         });
         sessionManager = new SessionManager(getApplicationContext());
+        stepsTakenText.setText(Integer.toString(dbHelper.getStepsToday(dbHelper.getUserId(sessionManager
+                .getSessionUsername()))) + " Steps");
         usernameText.setText(sessionManager.getSessionUsername());
+
+        // Listen for the change in steps from StepCountingService
+        newStepReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                stepsTakenText.setText(Integer.toString(dbHelper.getStepsToday(dbHelper.getUserId(sessionManager
+                        .getSessionUsername()))) + " Steps");
+            }
+        };
     }
 
     @Override

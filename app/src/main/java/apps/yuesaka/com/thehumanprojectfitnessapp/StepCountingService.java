@@ -11,12 +11,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 public class StepCountingService extends Service implements SensorEventListener {
     private static final String TAG = StepCountingService.class.getSimpleName();
     private static final int ONGOING_NOTIFICATION_ID = 1;
+
+    private SessionManager sessionManager;
+
+    private DatabaseHelper dbHelper;
 
     public class StepCountingServiceBinder extends Binder {
         StepCountingService getService() {
@@ -31,11 +36,35 @@ public class StepCountingService extends Service implements SensorEventListener 
     private long previous_steps = 0;
     private long counterStepsSinceRegistration = 0;
 
+    // For notifying the Activity about new steps.
+    LocalBroadcastManager newStepBroadcaster;
+    static final public String STEP_COUNT_UPDATE
+            = "apps.yuesaka.com.thehumanprojectfitnessapp.STEP_COUNT_UPDATE";
+
+    public void broadcastStepCount() {
+        Intent intent = new Intent(STEP_COUNT_UPDATE);
+        newStepBroadcaster.sendBroadcast(intent);
+    }
+
+    @Override
+    public void onCreate() {
+        dbHelper = DatabaseHelper.getInstance(getApplicationContext());
+        sessionManager = new SessionManager(getApplicationContext());
+    }
+
+    @Override
+    public void onDestroy() {
+        sensorManager.unregisterListener(this, stepSensor);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_FASTEST);
+
+        newStepBroadcaster = LocalBroadcastManager.getInstance(this);
+        broadcastStepCount();
 
         return stepCountingServiceBinder;
     }
@@ -59,7 +88,28 @@ public class StepCountingService extends Service implements SensorEventListener 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        Sensor sensor = event.sensor;
+        float[] values = event.values;
+        int value = -1;
 
+        if (values.length > 0) {
+            value = (int) values[0];
+        }
+        if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+            //Since it will return the total number since we registered we need to subtract the initial amount
+            //for the current steps since we opened app
+            if (counterStepsSinceRegistration < 1) {
+                // initial value since registration
+                counterStepsSinceRegistration = (int)values[0];
+            }
+            // Calculate steps taken based on first counter value received.
+            steps = (int)values[0] - counterStepsSinceRegistration;
+            long step_increment = steps - previous_steps;
+            Log.d(TAG, "service step_increment: " + step_increment);
+            dbHelper.updateStepsToday(dbHelper.getUserId(sessionManager.getSessionUsername()), (int) step_increment);
+            previous_steps = steps;
+            broadcastStepCount();
+        }
     }
 
     @Override
