@@ -8,6 +8,8 @@ import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.Pair;
@@ -149,13 +151,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         .string.male_string))) >= (getUserNumMilestones(id) + 1) *
                 1000.0 / Utility.METER_TO_FEET_CONVERSION) {
             updateMilestone(id, getUserNumMilestones(id) + 1);
+            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
                             .setSmallIcon(android.R.drawable.btn_star_big_on)
                             .setContentTitle("New Milestone achieved ")
                             .setContentText(context.getString(R.string.milestone_text,
                                     getUsername(id),
-                                    getUserNumMilestones(id) * 1000));
+                                    getUserNumMilestones(id) * 1000))
+                            .setSound(alarmSound);
             // Sets an ID for the notification
             int mNotificationId = MILESTONE_NOTIFICATION_ID;
             // Gets an instance of the NotificationManager service
