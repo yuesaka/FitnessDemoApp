@@ -6,8 +6,14 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import java.sql.Time;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * A broadcast receiver that reminds the user to walk every hour.
@@ -15,9 +21,10 @@ import android.util.Log;
 public class WalkReminderReceiver extends BroadcastReceiver {
     private static final int WALKING_REMINDER_NOTIFICATION_ID = 2;
     // The app's AlarmManager, which provides access to the system alarm services.
-    static private AlarmManager alarmMgr;
+    private AlarmManager alarmMgr;
     // The pending intent that is triggered when the alarm fires.
     private PendingIntent alarmIntent;
+    boolean isSet= false;
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null && intent.getAction() != null && intent.getAction().equals
@@ -40,17 +47,17 @@ public class WalkReminderReceiver extends BroadcastReceiver {
     }
 
     public void setAlarm(Context context) {
-        if (alarmMgr == null) {
+        if (!isSet) {
             alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(context,
+                    WalkReminderReceiver.class).setAction(WalkReminderReceiver.class.getSimpleName());
+            alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+            long timeTillNextHour = AlarmManager.INTERVAL_HOUR - (Calendar.getInstance().get(Calendar.MINUTE) * 60 * 1000);
+            alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + timeTillNextHour, AlarmManager.INTERVAL_HOUR,
+                    alarmIntent);
+            isSet = true;
         }
-        Intent intent = new Intent(context,
-                WalkReminderReceiver.class).setAction(WalkReminderReceiver.class.getSimpleName());
-        alarmIntent = PendingIntent.getBroadcast(context, 5300, intent, PendingIntent
-                .FLAG_CANCEL_CURRENT);
-        alarmMgr.cancel(PendingIntent.getBroadcast(context, 5300, intent, PendingIntent
-                .FLAG_UPDATE_CURRENT));
-        alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                0, Utility.HOUR_MILI, alarmIntent);
     }
 
     public void cancelAlarm(Context context) {

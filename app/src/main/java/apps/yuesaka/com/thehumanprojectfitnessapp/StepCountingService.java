@@ -41,7 +41,7 @@ public class StepCountingService extends Service implements SensorEventListener 
             = "apps.yuesaka.com.thehumanprojectfitnessapp.STEP_COUNT_UPDATE";
 
     WalkReminderReceiver walkReminderAlarmReceiver;
-    DailyResetReceiver stepLogUpdateAlarmReceiver;
+    DailyResetReceiver dailyResetReceiver;
 
     public void broadcastStepCount() {
         Intent intent = new Intent(STEP_COUNT_UPDATE);
@@ -54,8 +54,8 @@ public class StepCountingService extends Service implements SensorEventListener 
         sessionManager = new SessionManager(getApplicationContext());
         walkReminderAlarmReceiver = new WalkReminderReceiver();
         walkReminderAlarmReceiver.setAlarm(this);
-        stepLogUpdateAlarmReceiver = new DailyResetReceiver();
-        stepLogUpdateAlarmReceiver.setAlarm(this);
+        dailyResetReceiver = new DailyResetReceiver();
+        dailyResetReceiver.setAlarm(this);
     }
 
     @Override
