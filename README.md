@@ -8,4 +8,3 @@ in the database on the device.
 * Since it uses the step sensor introduced in 4.4 (API level 19), that is the minimum API level.
 That said, since I only own a Nexus 5X with Android 7.1.1 (API level 25), it was mainly tested on
  that.
- 
