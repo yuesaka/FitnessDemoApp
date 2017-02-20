@@ -52,7 +52,8 @@ public class WalkReminderReceiver extends BroadcastReceiver {
             Intent intent = new Intent(context,
                     WalkReminderReceiver.class).setAction(WalkReminderReceiver.class.getSimpleName());
             alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-            long timeTillNextHour = AlarmManager.INTERVAL_HOUR - (Calendar.getInstance().get(Calendar.MINUTE) * 60 * 1000);
+            long timeTillNextHour = AlarmManager.INTERVAL_HOUR -
+                    (Calendar.getInstance().get(Calendar.MINUTE) * 60 * 1000);
             alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + timeTillNextHour, AlarmManager.INTERVAL_HOUR,
                     alarmIntent);
