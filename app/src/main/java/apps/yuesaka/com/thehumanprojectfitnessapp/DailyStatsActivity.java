@@ -6,22 +6,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class DailyStatsActivity extends ActionBarActivity {
 
     private TextView stepsTakenText;
     private TextView usernameText;
     private TextView distanceText;
+    private TextView distanceFeetText;
+    private ListView stepStatsListView ;
+
 
     private SessionManager sessionManager;
     private DatabaseHelper dbHelper;
@@ -58,10 +70,15 @@ public class DailyStatsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_stats);
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
         dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         stepsTakenText = (TextView) findViewById(R.id.daily_stats_steps_taken);
         usernameText = (TextView) findViewById(R.id.daily_stats_greetings);
         distanceText = (TextView) findViewById(R.id.daily_stats_disntace_walked);
+        distanceFeetText = (TextView) findViewById(R.id.daily_stats_disntace_walked_feet);
+        stepStatsListView = (ListView) findViewById(R.id.step_stats_list);
         stepsTakenText.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent dbmanager = new Intent(DailyStatsActivity.this, AndroidDatabaseManager
@@ -70,16 +87,56 @@ public class DailyStatsActivity extends ActionBarActivity {
             }
         });
         sessionManager = new SessionManager(getApplicationContext());
+        if (!sessionManager.checkLogin()) {
+            finish();
+            return;
+        }
+        setupStepLogUI();
         updateStepAndDistanceText();
-        usernameText.setText("Hello, " + sessionManager.getSessionUsername());
+        usernameText.setText(sessionManager.getSessionUsername() + "'s daily stats for " +
+                Utility.getCurrentDateString());
 
         // Listen for the change in steps from StepCountingService
         newStepReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                updateStepAndDistanceText();
+                if (sessionManager.isLoggedIn()) {
+                    updateStepAndDistanceText();
+                }
             }
         };
+    }
+
+    private void setupStepLogUI() {
+        List<Pair<String, Integer>> currentUserStepLog = dbHelper.getStepLogData(sessionManager
+                .getSessionUsername());
+        List<String> currentUserStepLogStrings = new ArrayList<>();
+        for (Pair<String, Integer> pair : currentUserStepLog) {
+            String stepLogString = new String();
+            String dateString = Utility.getCurrentDateString();
+            if (!pair.first.equals(dateString)) { // Don't display current date
+                int userId = dbHelper.getUserId(sessionManager
+                        .getSessionUsername());
+                int stepsWalkedToday = dbHelper.getStepsToday(userId);
+                double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
+                        .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
+                        .string.male_string)));
+                stepLogString += pair.first + " : " + pair.second.toString() + " steps, " +
+                        Utility.formatDouble(distance)
+                + " meters, " + Utility.formatDouble(distance * Utility.METER_TO_FEET_CONVERSION) +
+                        " feet ";
+                currentUserStepLogStrings.add(stepLogString);
+            }
+        }
+
+        if (currentUserStepLogStrings.isEmpty()) {
+            currentUserStepLogStrings.add("Nothing logged yet.");
+        }
+        ArrayAdapter<String> itemsAdapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                        currentUserStepLogStrings);
+        stepStatsListView.setAdapter(itemsAdapter);
+
     }
 
     private void updateStepAndDistanceText() {
@@ -92,6 +149,11 @@ public class DailyStatsActivity extends ActionBarActivity {
                 .string.male_string)));
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         distanceText.setText(decimalFormat.format(distance) + " Meters");
+        distanceFeetText.setText(decimalFormat.format(distance * Utility
+                .METER_TO_FEET_CONVERSION) +
+                "" +
+                " " +
+                "Feet");
     }
 
     @Override
@@ -103,11 +165,19 @@ public class DailyStatsActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        Intent intent = null;
         switch (id) {
             case R.id.menu_logout:
-                Intent intent = new Intent(this, StepCountingService.class);
+                intent = new Intent(this, StepCountingService.class);
                 stopService(intent);
                 sessionManager.logoutUser();
+                break;
+            case R.id.menu_leaderboard:
+                intent = new Intent(DailyStatsActivity.this,
+                        LeaderBoardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 break;
         }
         return super.onOptionsItemSelected(item);

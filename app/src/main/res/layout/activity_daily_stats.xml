@@ -37,4 +37,34 @@
         android:layout_below="@+id/daily_stats_steps_taken"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Distance Walked (feet):"
+        android:id="@+id/daily_stats_disntace_walked_feet"
+        android:layout_below="@+id/daily_stats_disntace_walked"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Past Record:"
+        android:id="@+id/textView"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/daily_stats_disntace_walked_feet"
+        android:layout_alignParentStart="true" />
+
+    <ListView
+        android:id="@+id/step_stats_list"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/daily_stats_disntace_walked_feet"
+        >
+    </ListView>
+
 </RelativeLayout>

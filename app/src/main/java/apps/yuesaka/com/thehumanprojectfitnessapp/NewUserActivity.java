@@ -1,6 +1,7 @@
 package apps.yuesaka.com.thehumanprojectfitnessapp;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -21,6 +22,9 @@ public class NewUserActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_user);
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
         final SessionManager sessionManager  = new SessionManager(getApplicationContext());
 
         submitButton = (Button) findViewById(R.id.new_user_submit_button);
@@ -52,7 +56,9 @@ public class NewUserActivity extends ActionBarActivity {
                 Intent intent = new Intent(NewUserActivity.this,
                         DailyStatsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
             }
         });
     }

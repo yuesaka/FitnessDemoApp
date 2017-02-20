@@ -10,17 +10,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.util.Pair;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * A Singleton implementation of the database helper.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final double THOUSAND_FEET_IN_METERS = 304.8;
     private static final int MILESTONE_NOTIFICATION_ID = 3;
     private static DatabaseHelper dbInstance;
 
@@ -141,16 +141,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void updateStepsToday(long id, int stepIncrement) {
         int newStepValue = getStepsToday(id) + stepIncrement;
-        setStepsToday(id, newStepValue);
+        updateStepsTodayInternal(id, newStepValue);
+        updateStepLog(id, newStepValue);
         // Send out notification if milestone is met.
         if (Utility.stepsToMeter(newStepValue, getUserHeight(id), getUserSex(id).equals
                 (context.getString(R
                         .string.male_string))) >= (getUserNumMilestones(id) + 1) *
-                THOUSAND_FEET_IN_METERS) {
+                1000.0 / Utility.METER_TO_FEET_CONVERSION) {
             updateMilestone(id, getUserNumMilestones(id) + 1);
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
-                            .setSmallIcon(R.drawable.abc_tab_indicator_material)
+                            .setSmallIcon(android.R.drawable.btn_star_big_on)
                             .setContentTitle("New Milestone achieved ")
                             .setContentText(context.getString(R.string.milestone_text,
                                     getUsername(id),
@@ -165,7 +166,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    private void setStepsToday(long id, int newStepValue) {
+    private void updateStepsTodayInternal(long id, int newStepValue) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_USER_INFO_STEPS_TODAY, newStepValue);
@@ -178,52 +179,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 selectionArgs);
     }
 
-    public void updateStepLog() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME, null);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        Date date = new Date();
-        String dateString = dateFormat.format(date);
+
+    // Updates the Step Log table which keeps track of the steps the users have taken based on the
+    // date.
+    public void updateStepLog(long id, int newStepValue) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String username = getUsername(id);
+        String dateString = Utility.getCurrentDateString();
+        Cursor cursor =  db.rawQuery("select * from " + STEP_LOG_TABLE_NAME + " where " +
+                KEY_STEP_LOG_USERNAME + "= '" + username +"'" + " and " + KEY_STEP_LOG_DATE
+                + "= '" + dateString +"'", null);
         if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    String username =
-                            cursor.getString(cursor.getColumnIndex(KEY_USER_INFO_USERNAME));
-                    int steps =
-                            cursor.getInt(cursor.getColumnIndex(KEY_USER_INFO_STEPS_TODAY));
-                    if (stepLogEntryAlreadyExists(username, dateString)) {
-                        // update
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(KEY_STEP_LOG_STEPS, steps);
-                        String selection = KEY_STEP_LOG_USERNAME + " = ?" + " and "
-                                +KEY_STEP_LOG_DATE + " = '?'";
-                        String[] selectionArgs = {username, dateString};
-                        db.update(STEP_LOG_TABLE_NAME,
-                                contentValues,
-                                selection,
-                                selectionArgs);
-                    } else {
-                        // insert
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(KEY_STEP_LOG_USERNAME, username);
-                        contentValues.put(KEY_STEP_LOG_STEPS, steps);
-                        contentValues.put(KEY_STEP_LOG_DATE, dateString);
-                        db.insert(STEP_LOG_TABLE_NAME, null, contentValues);
-                    }
-                    // remove stepstoday+milestone for use in USER_INFO table
-                    setStepsToday(getUserId(username), 0);
-                    updateMilestone(getUserId(username), 0);
-                } while (cursor.moveToNext());
+            if (cursor.getCount() == 0) { // insert
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(KEY_STEP_LOG_USERNAME, username);
+                contentValues.put(KEY_STEP_LOG_STEPS, newStepValue);
+                contentValues.put(KEY_STEP_LOG_DATE, dateString);
+                db.insert(STEP_LOG_TABLE_NAME, null, contentValues);
+            } else { //update
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(KEY_STEP_LOG_STEPS, newStepValue);
+                String selection = KEY_STEP_LOG_USERNAME + " = ?" + " and "
+                        + KEY_STEP_LOG_DATE + " = ?";
+                String[] selectionArgs = {username, dateString};
+                db.update(STEP_LOG_TABLE_NAME,
+                        contentValues,
+                        selection,
+                        selectionArgs);
             }
         }
     }
 
-    private boolean stepLogEntryAlreadyExists(String username, String date) {
+    public void resetDailyValues() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery("select * from " + STEP_LOG_TABLE_NAME + " where " +
-                KEY_STEP_LOG_USERNAME + "= '" + username +"'" + " and " + KEY_STEP_LOG_DATE
-                + "= '" + date +"'", null);
-        return res.getCount() > 0;
+        Cursor cursor =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME, null);
+        long id;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    id = cursor.getInt(cursor.getColumnIndex(KEY_USER_INFO_ID));
+                    updateStepsTodayInternal(id, 0);
+                    updateMilestone(id, 0);
+                } while (cursor.moveToNext());
+            }
+        }
     }
 
     public int getStepsToday(long id) {
@@ -266,6 +265,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         return userSex;
+    }
+
+    public List<Pair<String, Integer>> getStepLogData(String username) {
+        List<Pair<String, Integer>> result = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor =  db.rawQuery("select * from " + STEP_LOG_TABLE_NAME + " where " +
+                KEY_STEP_LOG_USERNAME + "= '" + username + "'" + " ORDER BY date" +
+                "('" + KEY_STEP_LOG_DATE + "') DESC ", null);
+        String date = null;
+        Integer steps = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    date = cursor.getString(cursor.getColumnIndex(KEY_STEP_LOG_DATE));
+                    steps = cursor.getInt(cursor.getColumnIndex(KEY_STEP_LOG_STEPS));
+                    result.add(new Pair<>(date, steps));
+                } while (cursor.moveToNext());
+            }
+        }
+        return result;
     }
 
     private Cursor getUserInfo(int id) {
@@ -315,6 +334,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 selection,
                 selectionArgs);
         return true;
+    }
+
+    public List<Pair<String, Double>> getLeaderboardList() {
+        List<Pair<String, Double>> result = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME, null);
+        int height;
+        String sex;
+        int steps;
+        String username;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    height = cursor.getInt(cursor.getColumnIndex(KEY_USER_INFO_HEIGHT_CM));
+                    sex = cursor.getString(cursor.getColumnIndex(KEY_USER_INFO_SEX));
+                    steps = cursor.getInt(cursor.getColumnIndex(KEY_USER_INFO_STEPS_TODAY));
+                    username = cursor.getString(cursor.getColumnIndex(KEY_USER_INFO_USERNAME));
+                    result.add(new Pair<>(username, Utility.stepsToMeter(steps, height,
+                            sex.equals(context.getApplicationContext().getString(R
+                                    .string.male_string)))));
+                } while (cursor.moveToNext());
+            }
+        }
+        // sort based on the distance
+        Collections.sort(result, new Comparator<Pair<String, Double>>() {
+            @Override
+            public int compare(Pair<String, Double> lhs, Pair<String, Double> rhs) {
+                return Double.compare(rhs.second, lhs.second);
+            }
+        });
+        return result;
     }
 
 

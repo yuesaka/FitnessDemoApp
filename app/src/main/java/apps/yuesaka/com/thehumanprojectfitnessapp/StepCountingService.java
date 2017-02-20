@@ -41,7 +41,7 @@ public class StepCountingService extends Service implements SensorEventListener 
             = "apps.yuesaka.com.thehumanprojectfitnessapp.STEP_COUNT_UPDATE";
 
     WalkReminderReceiver walkReminderAlarmReceiver;
-    StepLogUpdateReceiver stepLogUpdateAlarmReceiver;
+    DailyResetReceiver stepLogUpdateAlarmReceiver;
 
     public void broadcastStepCount() {
         Intent intent = new Intent(STEP_COUNT_UPDATE);
@@ -54,7 +54,7 @@ public class StepCountingService extends Service implements SensorEventListener 
         sessionManager = new SessionManager(getApplicationContext());
         walkReminderAlarmReceiver = new WalkReminderReceiver();
         walkReminderAlarmReceiver.setAlarm(this);
-        stepLogUpdateAlarmReceiver = new StepLogUpdateReceiver();
+        stepLogUpdateAlarmReceiver = new DailyResetReceiver();
         stepLogUpdateAlarmReceiver.setAlarm(this);
     }
 
@@ -62,7 +62,6 @@ public class StepCountingService extends Service implements SensorEventListener 
     public void onDestroy() {
         sensorManager.unregisterListener(this, stepSensor);
         walkReminderAlarmReceiver.cancelAlarm(this);
-        stepLogUpdateAlarmReceiver.cancelAlarm(this);
     }
 
     @Override
@@ -85,7 +84,7 @@ public class StepCountingService extends Service implements SensorEventListener 
         Notification notification = new Notification.Builder(this)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.step_counting_notification_text))
-                .setSmallIcon(R.drawable.abc_tab_indicator_material)
+                .setSmallIcon(android.R.drawable.presence_online)
                 .setContentIntent(pendingIntent)
                 .build();
 
@@ -96,27 +95,29 @@ public class StepCountingService extends Service implements SensorEventListener 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Sensor sensor = event.sensor;
-        float[] values = event.values;
-        int value = -1;
+        if (sessionManager.isLoggedIn()) {
+            Sensor sensor = event.sensor;
+            float[] values = event.values;
+            int value = -1;
 
-        if (values.length > 0) {
-            value = (int) values[0];
-        }
-        if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            //Since it will return the total number since we registered we need to subtract the initial amount
-            //for the current steps since we opened app
-            if (counterStepsSinceRegistration < 1) {
-                // initial value since registration
-                counterStepsSinceRegistration = (int)values[0];
+            if (values.length > 0) {
+                value = (int) values[0];
             }
-            // Calculate steps taken based on first counter value received.
-            steps = (int)values[0] - counterStepsSinceRegistration;
-            long step_increment = steps - previous_steps;
-            Log.d(TAG, "service step_increment: " + step_increment);
-            dbHelper.updateStepsToday(dbHelper.getUserId(sessionManager.getSessionUsername()), (int) step_increment);
-            previous_steps = steps;
-            broadcastStepCount();
+            if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+                //Since it will return the total number since we registered we need to subtract the initial amount
+                //for the current steps since we opened app
+                if (counterStepsSinceRegistration < 1) {
+                    // initial value since registration
+                    counterStepsSinceRegistration = (int) values[0];
+                }
+                // Calculate steps taken based on first counter value received.
+                steps = (int) values[0] - counterStepsSinceRegistration;
+                long step_increment = steps - previous_steps;
+                Log.d(TAG, "service step_increment: " + step_increment);
+                dbHelper.updateStepsToday(dbHelper.getUserId(sessionManager.getSessionUsername()), (int) step_increment);
+                previous_steps = steps;
+                broadcastStepCount();
+            }
         }
     }
 

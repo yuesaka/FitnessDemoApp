@@ -12,5 +12,6 @@
     <string name="logout">Log Out</string>
     <string name="step_counting_notification_text">Tracking...</string>
     <string name="milestone_text">%1$s just walked %2$d feet</string>
+    <string name="menu_leaderboard">Leaderboard</string>
 
 </resources>

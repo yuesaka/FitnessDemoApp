@@ -45,11 +45,13 @@ public class SessionManager {
     }
 
     // Checks to see if a user is logged in. Kicks the user to the login screen if there is nobody
-    // logged in.
-    public void checkLogin(){
-        if(sharedPreferences.getBoolean(IS_LOGGED_IN, false)){
+    // logged in. returns false if user is not logged in.
+    public boolean checkLogin(){
+        if(!sharedPreferences.getBoolean(IS_LOGGED_IN, false)){
             sendUserToLoginActivity();
+            return false;
         }
+        return true;
     }
 
     public void logoutUser(){
