@@ -134,6 +134,7 @@ public class DailyStatsActivity extends ActionBarActivity {
                 intent = new Intent(this, StepCountingService.class);
                 stopService(intent);
                 sessionManager.logoutUser();
+                finish();
                 break;
             case R.id.menu_leaderboard:
                 intent = new Intent(DailyStatsActivity.this,
