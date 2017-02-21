@@ -8,6 +8,7 @@ your actual passwords :)
 * The periodic reminder goes off at the top of every hour, only if there is a user logged in.
 * It uses the hardware step sensor introduced in Nexus 5 and Android 4.4, so it assumes that the
 device and the OS is made after Nexus 5/Android 4.4
+(See https://developer.android.com/about/versions/android-4.4.html#UserInput)
 * The leaderboard can be access through the menu
 * For debugging purposes, tapping the step count textbox in the daily stat will bring up a
 database viewer activity that will allow you to look at the state of the database.
