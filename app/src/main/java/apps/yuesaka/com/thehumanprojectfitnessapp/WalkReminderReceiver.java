@@ -26,7 +26,7 @@ public class WalkReminderReceiver extends BroadcastReceiver {
     private AlarmManager alarmMgr;
     // The pending intent that is triggered when the alarm fires.
     private PendingIntent alarmIntent;
-    boolean isSet= false;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null && intent.getAction() != null && intent.getAction().equals
@@ -36,8 +36,8 @@ public class WalkReminderReceiver extends BroadcastReceiver {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
                             .setSmallIcon(android.R.drawable.sym_def_app_icon)
-                            .setContentTitle("Walking Reminder")
-                            .setContentText("Stand up and go walk!")
+                            .setContentTitle(context.getString(R.string.walking_reminder))
+                            .setContentText(context.getString(R.string.walking_reminder_message))
                             .setSound(alarmSound);
 
             // Sets an ID for the notification

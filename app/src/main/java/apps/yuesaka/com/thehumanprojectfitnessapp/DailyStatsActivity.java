@@ -80,8 +80,8 @@ public class DailyStatsActivity extends ActionBarActivity {
         }
         PackageManager pm = getPackageManager();
         if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
-            Toast.makeText(this, "Your device lacks the hardware step sensor necessary for this " +
-                    "app. It may not work as intended.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.sensor_lacking_message), Toast.LENGTH_LONG)
+                    .show();
         }
         dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         stepsTakenText = (TextView) findViewById(R.id.daily_stats_steps_taken);
@@ -103,8 +103,9 @@ public class DailyStatsActivity extends ActionBarActivity {
         }
         setupStepLogUI();
         updateStepAndDistanceText();
-        usernameText.setText(sessionManager.getSessionUsername() + "'s daily stats for " +
-                Utility.getCurrentDateString());
+        usernameText.setText(getString(R.string.daily_stats_title, sessionManager
+                .getSessionUsername(),
+                Utility.getCurrentDateString()));
 
         // Listen for the change in steps from StepCountingService
         newStepReceiver = new BroadcastReceiver() {
@@ -131,16 +132,15 @@ public class DailyStatsActivity extends ActionBarActivity {
                 double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
                         .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
                         .string.male_string)));
-                stepLogString += pair.first + " : " + pair.second.toString() + " steps, " +
-                        Utility.formatDouble(distance)
-                + " meters, " + Utility.formatDouble(distance * Utility.METER_TO_FEET_CONVERSION) +
-                        " feet ";
+                stepLogString = getString(R.string.step_log_entry,pair.first,pair.second.toString
+                        (),Utility.formatDouble(distance),
+                        Utility.formatDouble(distance * Utility.METER_TO_FEET_CONVERSION));
                 currentUserStepLogStrings.add(stepLogString);
             }
         }
 
         if (currentUserStepLogStrings.isEmpty()) {
-            currentUserStepLogStrings.add("Nothing logged yet.");
+            currentUserStepLogStrings.add(getString(R.string.nothing_logged));
         }
         ArrayAdapter<String> itemsAdapter =
                 new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
@@ -153,19 +153,19 @@ public class DailyStatsActivity extends ActionBarActivity {
         int userId = dbHelper.getUserId(sessionManager
                 .getSessionUsername());
         int stepsWalkedToday = dbHelper.getStepsToday(userId);
-        stepsTakenText.setText(Integer.toString(stepsWalkedToday) + " Steps");
+        stepsTakenText.setText(getString(R.string.steps_taken, stepsWalkedToday));
         double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
                 .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
                 .string.male_string)));
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        distanceText.setText(decimalFormat.format(distance) + " Meters");
-        distanceFeetText.setText(decimalFormat.format(distance * Utility
-                .METER_TO_FEET_CONVERSION) +
-                "" +
-                " " +
-                "Feet");
+        distanceText.setText(getString(R.string.distance_walked_meter, Utility.formatDouble
+                (distance)));
+        distanceFeetText.setText(getString(R.string.distance_walked_feet, Utility.formatDouble
+                (distance * Utility.METER_TO_FEET_CONVERSION)));
     }
 
+    /**
+     * Menu related functions
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);

@@ -35,7 +35,6 @@ public class StepCountingService extends Service implements SensorEventListener 
 
     private SensorManager sensorManager;
     private Sensor stepSensor;
-    private long steps = 0;
     private long previous_steps = 0;
     private long counterStepsSinceRegistration = 0;
 
@@ -115,9 +114,8 @@ public class StepCountingService extends Service implements SensorEventListener 
                     counterStepsSinceRegistration = (int) values[0];
                 }
                 // Calculate steps taken based on first counter value received.
-                steps = (int) values[0] - counterStepsSinceRegistration;
+                long steps = (int) values[0] - counterStepsSinceRegistration;
                 long step_increment = steps - previous_steps;
-                Log.d(TAG, "service step_increment: " + step_increment);
                 dbHelper.updateStepsToday(dbHelper.getUserId(sessionManager.getSessionUsername()), (int) step_increment);
                 previous_steps = steps;
                 broadcastStepCount();
@@ -127,6 +125,6 @@ public class StepCountingService extends Service implements SensorEventListener 
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+        // not used.
     }
 }

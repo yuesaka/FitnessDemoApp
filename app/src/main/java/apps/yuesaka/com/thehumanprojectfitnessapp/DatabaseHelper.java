@@ -157,7 +157,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
                             .setSmallIcon(android.R.drawable.btn_star_big_on)
-                            .setContentTitle("New Milestone achieved ")
+                            .setContentTitle(context.getString(R.string.milestone_title))
                             .setContentText(context.getString(R.string.milestone_text,
                                     getUsername(id),
                                     getUserNumMilestones(id) * 1000))

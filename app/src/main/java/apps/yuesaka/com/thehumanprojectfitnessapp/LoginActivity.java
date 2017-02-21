@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+/**
+ * This activity is used to log into the app. If the user is already logged in, it will skip into
+ * the daily statistic activity.
+ */
 public class LoginActivity extends ActionBarActivity {
 
     private Button loginButton;

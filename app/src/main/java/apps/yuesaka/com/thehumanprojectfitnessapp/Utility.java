@@ -17,11 +17,7 @@ public final class Utility {
 
     private static final double MALE_STEP_LENGTH_FACTOR = 0.415;
     private static final double FEMALE_STEP_LENGTH_FACTOR = 0.413;
-
     public static final double METER_TO_FEET_CONVERSION = 3.28084;
-
-    public static final int HOUR_MILI = 60 * 60 * 1000;
-
 
     public static boolean isRequiredFieldFilled(Context context, EditText editText) {
         boolean isRequiredFieldFilled = !editText.getText().toString().trim().equals("");
@@ -43,6 +39,7 @@ public final class Utility {
         return dateString;
     }
 
+    // formats a double into a string with two digits after the decimal point.
     public static String formatDouble(double number) {
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         return decimalFormat.format(number);

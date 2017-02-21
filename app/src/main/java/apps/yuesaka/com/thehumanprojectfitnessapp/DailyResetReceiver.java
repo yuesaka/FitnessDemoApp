@@ -9,6 +9,10 @@ import android.util.Log;
 
 import java.util.Calendar;
 
+/**
+ * This broadcast receiver will reset the fields related to today's activity from the database.
+ * The reset happens at midnight each day.
+ */
 public class DailyResetReceiver extends WakefulBroadcastReceiver {
     // The app's AlarmManager, which provides access to the system alarm services.
     private AlarmManager alarmMgr;

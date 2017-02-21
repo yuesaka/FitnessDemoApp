@@ -11,7 +11,18 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="logout">Log Out</string>
     <string name="step_counting_notification_text">Tracking...</string>
-    <string name="milestone_text">%1$s just walked %2$d feet</string>
+    <string name="milestone_text">%1$s just walked %2$d feet!</string>
     <string name="menu_leaderboard">Leaderboard</string>
+    <string name="walking_reminder">Walking Reminder</string>
+    <string name="walking_reminder_message">Stand up and go walk!</string>
+    <string name="sensor_lacking_message">Your device lacks the hardware step sensor necessary for this app. It may not work as intended</string>
+    <string name="daily_stats_title">"%1$s 's daily stats for %2$s</string>
+    <string name="nothing_logged">Nothing logged yet.</string>
+    <string name="steps_taken">%1$d Steps</string>
+    <string name="distance_walked_meter">%1$s Meters</string>
+    <string name="distance_walked_feet">%1$s Feet</string>
+    <string name="step_log_entry">%1$s: %2$s Steps, %3$s Meters, %4$s Feet</string>
+    <string name="leaderboard_entry">%1$d: %2$s %3$s Steps, %4$s Meters, %5$s Feet</string>
+    <string name="milestone_title">New Milestone Achieved!</string>
 
 </resources>
