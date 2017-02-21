@@ -25,7 +25,7 @@ public class LeaderBoardActivity extends ActionBarActivity {
         int place = 1;
         for (Pair<String, Double> pair : leaderboardList) {
             leaderboardListString.add(getString(R.string.leaderboard_entry, place, pair.first,
-                    pair.second.toString(), Utility.formatDouble(pair.second),
+                    Utility.formatDouble(pair.second),
                     Utility.formatDouble(pair.second * Utility.METER_TO_FEET_CONVERSION)));
             place++;
         }
