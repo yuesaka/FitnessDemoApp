@@ -173,8 +173,7 @@ public class DailyStatsActivity extends ActionBarActivity {
             if (!pair.first.equals(dateString)) { // Don't display current date
                 int userId = dbHelper.getUserId(sessionManager
                         .getSessionUsername());
-                int stepsWalkedToday = dbHelper.getStepsToday(userId);
-                double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
+                double distance = Utility.stepsToMeter(pair.second, dbHelper
                         .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
                         .string.male_string)));
                 stepLogString = getString(R.string.step_log_entry,pair.first,pair.second.toString

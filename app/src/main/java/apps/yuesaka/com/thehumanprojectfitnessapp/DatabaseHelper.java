@@ -271,6 +271,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return userSex;
     }
 
+    // Returns a list of pairs of date/steps taken.
     public List<Pair<String, Integer>> getStepLogData(String username) {
         List<Pair<String, Integer>> result = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
