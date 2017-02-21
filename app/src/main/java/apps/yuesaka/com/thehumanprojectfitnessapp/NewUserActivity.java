@@ -10,6 +10,9 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+/**
+ * This activity allows new users to sign up.
+ */
 public class NewUserActivity extends ActionBarActivity {
     private Button submitButton;
     private EditText newUserUserName;

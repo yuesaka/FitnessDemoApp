@@ -14,6 +14,10 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+/**
+ * This service takes care of the step counting, which the app uses to calculate the distance
+ * traveled by a user.
+ */
 public class StepCountingService extends Service implements SensorEventListener {
     private static final String TAG = StepCountingService.class.getSimpleName();
     private static final int ONGOING_NOTIFICATION_ID = 1;

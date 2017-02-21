@@ -9,6 +9,9 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This activity lists the leaderboard based on the distance traveled by each other today.
+ */
 public class LeaderBoardActivity extends ActionBarActivity {
     private ListView leaderboardListView ;
     @Override

@@ -20,7 +20,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * A Singleton implementation of the database helper.
+ * A Singleton implementation of the database helper. It manages all the all the database
+ * transactions as well as providing the methods for the interacting classes to get the
+ * relavant data from the database.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int MILESTONE_NOTIFICATION_ID = 3;

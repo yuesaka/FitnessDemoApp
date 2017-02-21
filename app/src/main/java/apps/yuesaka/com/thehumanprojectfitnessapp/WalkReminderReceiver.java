@@ -18,7 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * A broadcast receiver that reminds the user to walk every hour.
+ * A broadcast receiver that reminds the user to walk at the top of every hour.
  */
 public class WalkReminderReceiver extends BroadcastReceiver {
     private static final int WALKING_REMINDER_NOTIFICATION_ID = 2;
@@ -51,22 +51,19 @@ public class WalkReminderReceiver extends BroadcastReceiver {
     }
 
     public void setAlarm(Context context) {
-        if (true/*!isSet*/) {
-            alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(context,
-                    WalkReminderReceiver.class).setAction(WalkReminderReceiver.class.getSimpleName());
-            alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-            int hoursOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            int nextHourOfDay = (hoursOfDay + 1 ) % 24;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, nextHourOfDay);
-            calendar.set(Calendar.MINUTE, 0);
-            alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR,
-                    alarmIntent);
-            //isSet = true;
-        }
+        alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context,
+                WalkReminderReceiver.class).setAction(WalkReminderReceiver.class.getSimpleName());
+        alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        int hoursOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int nextHourOfDay = (hoursOfDay + 1 ) % 24;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, nextHourOfDay);
+        calendar.set(Calendar.MINUTE, 0);
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR,
+                alarmIntent);
     }
 
     public void cancelAlarm(Context context) {

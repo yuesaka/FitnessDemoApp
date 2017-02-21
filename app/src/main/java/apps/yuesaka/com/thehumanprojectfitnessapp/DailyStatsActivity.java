@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -26,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This Activity displays the daily statistics for the current logged in user.
+ */
 public class DailyStatsActivity extends ActionBarActivity {
 
     private TextView stepsTakenText;
@@ -72,6 +77,11 @@ public class DailyStatsActivity extends ActionBarActivity {
         setContentView(R.layout.activity_daily_stats);
         if(getResources().getBoolean(R.bool.portrait_only)){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        PackageManager pm = getPackageManager();
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
+            Toast.makeText(this, "Your device lacks the hardware step sensor necessary for this " +
+                    "app. It may not work as intended.", Toast.LENGTH_LONG).show();
         }
         dbHelper = DatabaseHelper.getInstance(getApplicationContext());
         stepsTakenText = (TextView) findViewById(R.id.daily_stats_steps_taken);
