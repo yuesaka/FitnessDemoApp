@@ -32,13 +32,11 @@ import java.util.List;
  * This Activity displays the daily statistics for the current logged in user.
  */
 public class DailyStatsActivity extends ActionBarActivity {
-
     private TextView stepsTakenText;
     private TextView usernameText;
     private TextView distanceText;
     private TextView distanceFeetText;
     private ListView stepStatsListView ;
-
 
     private SessionManager sessionManager;
     private DatabaseHelper dbHelper;
@@ -118,51 +116,6 @@ public class DailyStatsActivity extends ActionBarActivity {
         };
     }
 
-    private void setupStepLogUI() {
-        List<Pair<String, Integer>> currentUserStepLog = dbHelper.getStepLogData(sessionManager
-                .getSessionUsername());
-        List<String> currentUserStepLogStrings = new ArrayList<>();
-        for (Pair<String, Integer> pair : currentUserStepLog) {
-            String stepLogString = new String();
-            String dateString = Utility.getCurrentDateString();
-            if (!pair.first.equals(dateString)) { // Don't display current date
-                int userId = dbHelper.getUserId(sessionManager
-                        .getSessionUsername());
-                int stepsWalkedToday = dbHelper.getStepsToday(userId);
-                double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
-                        .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
-                        .string.male_string)));
-                stepLogString = getString(R.string.step_log_entry,pair.first,pair.second.toString
-                        (),Utility.formatDouble(distance),
-                        Utility.formatDouble(distance * Utility.METER_TO_FEET_CONVERSION));
-                currentUserStepLogStrings.add(stepLogString);
-            }
-        }
-
-        if (currentUserStepLogStrings.isEmpty()) {
-            currentUserStepLogStrings.add(getString(R.string.nothing_logged));
-        }
-        ArrayAdapter<String> itemsAdapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
-                        currentUserStepLogStrings);
-        stepStatsListView.setAdapter(itemsAdapter);
-
-    }
-
-    private void updateStepAndDistanceText() {
-        int userId = dbHelper.getUserId(sessionManager
-                .getSessionUsername());
-        int stepsWalkedToday = dbHelper.getStepsToday(userId);
-        stepsTakenText.setText(getString(R.string.steps_taken, stepsWalkedToday));
-        double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
-                .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
-                .string.male_string)));
-        distanceText.setText(getString(R.string.distance_walked_meter, Utility.formatDouble
-                (distance)));
-        distanceFeetText.setText(getString(R.string.distance_walked_feet, Utility.formatDouble
-                (distance * Utility.METER_TO_FEET_CONVERSION)));
-    }
-
     /**
      * Menu related functions
      */
@@ -208,4 +161,50 @@ public class DailyStatsActivity extends ActionBarActivity {
             serviceBound = true;
         }
     };
+
+    private void setupStepLogUI() {
+        List<Pair<String, Integer>> currentUserStepLog = dbHelper.getStepLogData(sessionManager
+                .getSessionUsername());
+        List<String> currentUserStepLogStrings = new ArrayList<>();
+        for (Pair<String, Integer> pair : currentUserStepLog) {
+            String stepLogString = new String();
+            String dateString = Utility.getCurrentDateString();
+            if (!pair.first.equals(dateString)) { // Don't display current date
+                int userId = dbHelper.getUserId(sessionManager
+                        .getSessionUsername());
+                int stepsWalkedToday = dbHelper.getStepsToday(userId);
+                double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
+                        .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
+                        .string.male_string)));
+                stepLogString = getString(R.string.step_log_entry,pair.first,pair.second.toString
+                                (),Utility.formatDouble(distance),
+                        Utility.formatDouble(distance * Utility.METER_TO_FEET_CONVERSION));
+                currentUserStepLogStrings.add(stepLogString);
+            }
+        }
+
+        if (currentUserStepLogStrings.isEmpty()) {
+            currentUserStepLogStrings.add(getString(R.string.nothing_logged));
+        }
+        ArrayAdapter<String> itemsAdapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                        currentUserStepLogStrings);
+        stepStatsListView.setAdapter(itemsAdapter);
+
+    }
+
+    private void updateStepAndDistanceText() {
+        int userId = dbHelper.getUserId(sessionManager
+                .getSessionUsername());
+        int stepsWalkedToday = dbHelper.getStepsToday(userId);
+        stepsTakenText.setText(getString(R.string.steps_taken, stepsWalkedToday));
+        double distance = Utility.stepsToMeter(stepsWalkedToday, dbHelper
+                .getUserHeight(userId), dbHelper.getUserSex(userId).equals(getString(R
+                .string.male_string)));
+        distanceText.setText(getString(R.string.distance_walked_meter, Utility.formatDouble
+                (distance)));
+        distanceFeetText.setText(getString(R.string.distance_walked_feet, Utility.formatDouble
+                (distance * Utility.METER_TO_FEET_CONVERSION)));
+    }
+
 }

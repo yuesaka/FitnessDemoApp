@@ -162,12 +162,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                     getUsername(id),
                                     getUserNumMilestones(id) * 1000))
                             .setSound(alarmSound);
-            // Sets an ID for the notification
             int mNotificationId = MILESTONE_NOTIFICATION_ID;
-            // Gets an instance of the NotificationManager service
             NotificationManager mNotifyMgr =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            // Builds the notification and issues it.
             mNotifyMgr.notify(mNotificationId, mBuilder.build());
         }
     }
@@ -216,6 +213,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    // Reset the steps taken today and the milestones achieved today.
     public void resetDailyValues() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor =  db.rawQuery("select * from " + USER_INFO_TABLE_NAME, null);
