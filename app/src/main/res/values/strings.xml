@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TheHumanProjectFitnessApp</string>
+    <string name="app_name">THP Fitness Demo</string>
 
     <string name="edit_text_field_required">Required Field</string>
     <string name="edit_text_username_taken">Username already taken!</string>
