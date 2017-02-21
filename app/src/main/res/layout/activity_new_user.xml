@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/new_user_title_text"
-        android:text="New User Signup"
+        android:text="@string/new_user_title"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:textAlignment="center"

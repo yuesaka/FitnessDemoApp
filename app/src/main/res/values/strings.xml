@@ -33,5 +33,5 @@
     <string name="new_user_button_text">New User</string>
     <string name="height_field">height (centimeters)</string>
     <string name="submit_button_text">Submit</string>
-
+    <string name="new_user_title">New User Signup</string>
 </resources>
