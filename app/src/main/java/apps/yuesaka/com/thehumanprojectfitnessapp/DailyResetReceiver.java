@@ -17,8 +17,6 @@ public class DailyResetReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("DailyResetReceiver", "onReceive!");
-        Log.d("DailyResetReceiver", "action: " + intent.getAction());
         if (intent != null && intent.getAction().equals(DailyResetReceiver.class.getSimpleName
                 ())) {
             DatabaseHelper.getInstance(context.getApplicationContext()).resetDailyValues();
