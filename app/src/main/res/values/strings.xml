@@ -24,5 +24,14 @@
     <string name="step_log_entry">%1$s: %2$s Steps, %3$s Meters, %4$s Feet</string>
     <string name="leaderboard_entry">%1$d: %2$s, %3$s Meters, %4$s Feet</string>
     <string name="milestone_title">New Milestone Achieved!</string>
+    <string name="step_stats_label">Past Record:</string>
+    <string name="daily_leaderboard_title">Daily Leaderboard</string>
+    <string name="login_page_title">Fitness Application</string>
+    <string name="username_field">username</string>
+    <string name="password_field">password</string>
+    <string name="login_button_text">Login</string>
+    <string name="new_user_button_text">New User</string>
+    <string name="height_field">height (centimeters)</string>
+    <string name="submit_button_text">Submit</string>
 
 </resources>

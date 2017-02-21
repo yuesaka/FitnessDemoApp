@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/leader_board_title"
-        android:text="Daily Leaderboard"
+        android:text="@string/daily_leaderboard_title"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:textAlignment="center"
