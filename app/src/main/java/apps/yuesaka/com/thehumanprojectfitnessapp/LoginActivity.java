@@ -36,6 +36,7 @@ public class LoginActivity extends ActionBarActivity {
                 Intent myIntent = new Intent(LoginActivity.this,
                         NewUserActivity.class);
                 startActivity(myIntent);
+                finish();
             }
         });
         loginButton = (Button) findViewById(R.id.login_button);
