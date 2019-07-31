@@ -1,4 +1,7 @@
 # FitnessDemoApp
+This is a sample Android Application I made as a take home asignment for a company.
+It simply demonstrates that I am capable of writing organized UI code in Android
+
 Some assumptions I made when I was creating this demo app:
 * All data is stored locally - there is no server involved. Any persistent data is simply stored
 in the database on the device.
